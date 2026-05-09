@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard – Sistema Escolar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- CONTENEDOR AJAX – Sustitución de Nodos-->
+<div id="contenedor-ajax" style="display:none;" aria-hidden="true">
+    <!-- El JS inserta/sustituye aquí: <img id="img-node-TIMESTAMP" class="img-sustituida" src="..." alt="..."> -->
+</div>
+
+<div class="container-fluid p-3 p-md-4">
+    <div class="row g-4">
+
+        <!-- SIDEBAR -->
+        <aside class="col-12 col-lg-2">
+            <div class="sidebar-container">
+                <div class="sidebar-title text-center text-lg-start">Prácticas</div>
+                <nav class="nav flex-column nav-pills-custom">
+                    <a class="nav-link active" href="#secCarrusel">Carrusel principal</a>
+                    <a class="nav-link" href="#secAdmin">Administrar</a>
+                </nav>
+                <div class="mt-4">
+                    <a href="logout.php" class="btn btn-outline-danger btn-sm w-100">Cerrar sesión</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="col-12 col-lg-10 ps-lg-5">
+            <h1 class="main-header-title text-center text-lg-start">Sistema de Control de Imagenes</h1>
+
+            <!-- CARRUSEL -->
+            <section id="secCarrusel" class="mb-5">
+                <div id="carouselWrapper">
+                    <button id="btnPrev" class="carousel-arrow" aria-label="Anterior">
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                    </button>
+                    <div id="slide-container">
+                        <div class="text-white text-center">
+                            <div class="spinner-border text-light mb-2"></div>
+                            <p>Cargando...</p>
+                        </div>
+                    </div>
+                    <button id="btnNext" class="carousel-arrow" aria-label="Siguiente">
+                        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+                    <div id="carouselIndicadores"></div>
+                </div>
+                <div id="infoImagen" class="card p-3 shadow-sm mt-3" style="display:none; border-left:5px solid #0d6efd;">
+                    <h5 id="imgTitulo" class="mb-1 fw-bold text-primary"></h5>
+                    <p id="imgDescripcion" class="text-muted mb-0"></p>
+                </div>
+            </section>
+
+            <!-- ADMINISTRADOR -->
+            <section id="secAdmin" class="mb-5">
+                <div class="admin-panel">
+                    <div class="admin-panel-header">
+                        <h4 class="admin-panel-title">Administrar Imágenes</h4>
+                        <button id="btnNuevaImagen" class="btn-admin-new">Nueva imagen</button>
+                    </div>
+                    <div id="adminNotif"></div>
+                    <div class="table-responsive mt-3">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Vista</th>
+                                    <th>Título</th>
+                                    <th class="text-center">Orden</th>
+                                    <th class="text-center">Estado</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaImagenes">
+                                <tr><td colspan="5" class="text-center py-4 text-muted">Cargando...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
