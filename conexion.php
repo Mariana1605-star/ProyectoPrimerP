@@ -1,6 +1,6 @@
 <?php
 
-define('DB_DRIVER', 'mysql');
+define('DB_DRIVER', 'pgsql');
 
 define('DB_HOST', 'localhost');
 define('DB_PORT', DB_DRIVER === 'pgsql' ? '5432' : '3306');
