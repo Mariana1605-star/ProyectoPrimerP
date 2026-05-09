@@ -229,11 +229,8 @@ function abrirModal(datos) {
     });
 
     // CORRECCIÓN: Eventos de selección de archivo
-    $('#dropZone').on('click', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    // Forzamos el click en el input oculto
-    document.getElementById('mArchivo').click();
+    $(document).on('click', '#dropZone', function() {
+    $('#mArchivo').trigger('click');
 });
 
 // Asegurarnos que el cambio se detecte
