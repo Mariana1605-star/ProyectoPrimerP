@@ -4,7 +4,7 @@ header('Content-Type: application/json');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
-define('IMG_DIR', __DIR__ . '/img_carrusel/');
+define('IMG_DIR', __DIR__ . '/img/');
 if (!is_dir(IMG_DIR)) mkdir(IMG_DIR, 0755, true);
 
 $db     = DB::conectar();
@@ -136,7 +136,7 @@ function subirArchivo(array $file): string|false {
     $destino = IMG_DIR.$nombre;
     if (!move_uploaded_file($file['tmp_name'],$destino)) return false;
     chmod($destino,0644);
-    return 'img_carrusel/'.$nombre;
+    return 'img/'.$nombre;
 }
 function borrarLocal(string $url): void {
     if (empty($url) || str_starts_with($url,'http://') || str_starts_with($url,'https://')) return;
