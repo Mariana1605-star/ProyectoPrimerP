@@ -215,7 +215,7 @@ function abrirModal(datos) {
 
     $('body').append(modalHtml);
 
-    // Eventos del modal (Ahora sí se ejecutarán)
+    // Eventos del modal
     $('#tabUrl').on('click', function () {
         tabActivo = 'url';
         $(this).addClass('active'); $('#tabLocal').removeClass('active');
@@ -228,23 +228,34 @@ function abrirModal(datos) {
         $('#panelLocal').show(); $('#panelUrl').hide();
     });
 
-$('#dropZone').on('click', () => $('#mArchivo').click());
-    $('#mArchivo').on('change', function () { if (this.files[0]) manejarArchivo(this.files[0]); });
-    $('#btnQuitarArchivo').on('click', () => { archivoFile=null; $('#fileChosen').hide(); $('#dropZone').show(); });
+    // CORRECCIÓN: Eventos de selección de archivo
+    $('#dropZone').on('click', function() {
+        $('#mArchivo').click();
+    });
+
+    $('#mArchivo').on('change', function () { 
+        if (this.files && this.files[0]) {
+            manejarArchivo(this.files[0]); 
+        }
+    });
+
+    $('#btnQuitarArchivo').on('click', function() { 
+        archivoFile = null; 
+        $('#fileChosen').hide(); 
+        $('#dropZone').show(); 
+        $('#mArchivo').val(''); // Limpiar el input
+    });
+
     $('#btnCerrarModal, #btnCerrarModal2').on('click', () => $('#modalImagen').remove());
     $('#btnGuardar').on('click', guardarImagen);
-}
+} // Aquí cierra abrirModal correctamente
 
+// 3. FUNCIONES GLOBALES (Fuera de abrirModal)
 function manejarArchivo(file) {
     archivoFile = file;
     $('#fileName').text(file.name);
-    $('#fileChosen').show(); $('#dropZone').hide();
-}
-
-function manejarArchivo(file) {
-    archivoFile = file;
-    $('#fileName').text(file.name);
-    $('#fileChosen').show(); $('#dropZone').hide();
+    $('#fileChosen').show(); 
+    $('#dropZone').hide();
 }
 
 function guardarImagen() {
@@ -271,7 +282,7 @@ function guardarImagen() {
 
     $.ajax({
         url: 'datos.php',
-        type: 'POST', // Usamos POST + _method para compatibilidad con servidores que bloquean PUT plano
+        type: 'POST',
         data: fd,
         processData: false,
         contentType: false,
