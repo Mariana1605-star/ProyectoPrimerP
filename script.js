@@ -197,7 +197,8 @@ function abrirModal(datos) {
                         <div id="panelLocal" style="display:none;">
                             <div class="file-drop-zone" id="dropZone">
                                 <p>Arrastra o selecciona un archivo</p>
-                                <input type="file" id="mArchivo" accept="image/*" style="display:none;">
+                                <input type="file" id="mArchivo" accept="image/*" 
+       style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none;">
                             </div>
                             <div id="fileChosen" style="display:none;" class="file-chosen">
                                 <span id="fileName"></span>
@@ -228,28 +229,36 @@ function abrirModal(datos) {
         $('#panelLocal').show(); $('#panelUrl').hide();
     });
 
-    $('#dropZone').on('click', () => $('#mArchivo').click());
-$('#mArchivo').on('change', function () { if (this.files[0]) manejarArchivo(this.files[0]); });
+// ── Click para abrir explorador de archivos ──────────────────
+$('#dropZone').on('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const input = document.getElementById('mArchivo');
+    if (input) input.click();
+});
+
+$('#mArchivo').on('change', function () { 
+    if (this.files[0]) manejarArchivo(this.files[0]); 
+});
 
 // ── Drag & Drop ──────────────────────────────────────────────
 $('#dropZone').on('dragover dragenter', function (e) {
-    e.preventDefault();           // Impide que el navegador abra el archivo
+    e.preventDefault();
     e.stopPropagation();
     $(this).addClass('drag-over');
 });
 
-$('#dropZone').on('dragleave dragend', function (e) {
+$('#dropZone').on('dragleave dragend', function () {
     $(this).removeClass('drag-over');
 });
 
 $('#dropZone').on('drop', function (e) {
-    e.preventDefault();           // ← Esta es la línea clave
+    e.preventDefault();
     e.stopPropagation();
     $(this).removeClass('drag-over');
     const file = e.originalEvent.dataTransfer.files[0];
     if (file) manejarArchivo(file);
 });
-}
 
 function manejarArchivo(file) {
     archivoFile = file;
