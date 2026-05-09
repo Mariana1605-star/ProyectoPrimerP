@@ -143,7 +143,7 @@ let editandoId  = null;
 let archivoFile = null;
 let tabActivo   = 'url';
 
-$('#btnNuevaImagen').on('click', () => abrirModal(null));
+$(document).on('click', '#btnNuevaImagen', () => abrirModal(null));
 
 $(document).on('click', '.btn-edit', function () {
     const id = $(this).closest('tr').data('id');
@@ -219,35 +219,30 @@ function abrirModal(datos) {
     $('body').append(modalHtml);
 
     // Eventos del modal
-    $('#tabUrl').on('click', function () {
-        tabActivo = 'url';
-        $(this).addClass('active'); $('#tabLocal').removeClass('active');
-        $('#panelUrl').show(); $('#panelLocal').hide();
-    });
+    $(document).on('click.modal', '#tabUrl', function () {
+    tabActivo = 'url';
+    $(this).addClass('active'); $('#tabLocal').removeClass('active');
+    $('#panelUrl').show(); $('#panelLocal').hide();
+});
 
-    $('#tabLocal').on('click', function () {
-        tabActivo = 'local';
-        $(this).addClass('active'); $('#tabUrl').removeClass('active');
-        $('#panelLocal').show(); $('#panelUrl').hide();
-    });
+$(document).on('click.modal', '#tabLocal', function () {
+    tabActivo = 'local';
+    $(this).addClass('active'); $('#tabUrl').removeClass('active');
+    $('#panelLocal').show(); $('#panelUrl').hide();
+});
 
-    // CORRECCIÓN: Eventos de selección de archivo
-    // ── Abrir explorador al hacer click ──────────────────────────
 $(document).on('click.modal', '#dropZone', function (e) {
     e.preventDefault();
     e.stopPropagation();
     document.getElementById('mArchivo').click();
 });
 
-// ── Detectar archivo seleccionado ────────────────────────────
 $(document).on('change.modal', '#mArchivo', function () {
     if (this.files && this.files[0]) manejarArchivo(this.files[0]);
 });
 
-// ── Drag & Drop ──────────────────────────────────────────────
 $(document).on('dragover.modal dragenter.modal', '#dropZone', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     $(this).addClass('drag-over');
 });
 
@@ -256,23 +251,25 @@ $(document).on('dragleave.modal dragend.modal', '#dropZone', function () {
 });
 
 $(document).on('drop.modal', '#dropZone', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     $(this).removeClass('drag-over');
     const file = e.originalEvent.dataTransfer.files[0];
     if (file) manejarArchivo(file);
 });
 
-    $('#btnQuitarArchivo').on('click', function() { 
-        archivoFile = null; 
-        $('#fileChosen').hide(); 
-        $('#dropZone').show(); 
-        $('#mArchivo').val(''); // Limpiar el input
-    });
+$(document).on('click.modal', '#btnQuitarArchivo', function () {
+    archivoFile = null;
+    $('#fileChosen').hide();
+    $('#dropZone').show();
+    $('#mArchivo').val('');
+});
 
-    $(document).on('click', '#btnCerrarModal, #btnCerrarModal2', function () {
+$(document).on('click.modal', '#btnCerrarModal, #btnCerrarModal2', function () {
     $('#modalImagen').remove();
-    $(document).off('.modal'); // Limpia todos los eventos del modal
+    $(document).off('.modal');
+});
+
+$(document).on('click.modal', '#btnGuardar', guardarImagen);
 });
 } // Aquí cierra abrirModal correctamente
 
