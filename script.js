@@ -1,7 +1,7 @@
 'use strict';
 
 // Estado del carrusel
-let imagenes   = [];
+let imagenes     = [];
 let indiceActual = 0;
 
 // ── Carga inicial ─────────────────────────────────────────────
@@ -34,24 +34,22 @@ function mostrarSlide(idx) {
     const img = imagenes[indiceActual];
 
     $.getJSON('datos.php', { id: img.id }, function (data) {
-        // Sustitución de nodo en el inspector (Nodo invisible para pruebas/forense)
         const nuevoImg = document.createElement('img');
-        nuevoImg.id = 'img-node-' + Date.now();
+        nuevoImg.id        = 'img-node-' + Date.now();
         nuevoImg.className = 'img-sustituida';
-        nuevoImg.src = data.url_imagen;
-        
+        nuevoImg.src       = data.url_imagen;
+
         const contenedorAjax = document.getElementById('contenedor-ajax');
-        if(contenedorAjax) {
+        if (contenedorAjax) {
             contenedorAjax.innerHTML = '';
             contenedorAjax.appendChild(nuevoImg);
         }
 
-        // Render visible
         const slideHtml = `
             <div class="visor-slide">
-                <img src="${escHtml(data.url_imagen)}" alt="${escHtml(data.titulo)}" 
+                <img src="${escHtml(data.url_imagen)}" alt="${escHtml(data.titulo)}"
                      style="width:100%; max-height:420px; object-fit:cover; display:block;">
-                <div style="position:absolute; bottom:0; left:0; right:0; 
+                <div style="position:absolute; bottom:0; left:0; right:0;
                      background:linear-gradient(transparent,rgba(0,0,0,.7)); color:#fff; padding:1.2rem 1.5rem;">
                     <h4 style="margin:0 0 .25rem; font-weight:700;">${escHtml(data.titulo)}</h4>
                     ${data.descripcion ? `<p style="margin:0; font-size:.9rem; color:#cbd5e1;">${escHtml(data.descripcion)}</p>` : ''}
@@ -96,8 +94,8 @@ function cargarTabla() {
             $('#tablaImagenes').html('<tr><td colspan="5" class="text-center py-4 text-muted">Sin imágenes registradas.</td></tr>');
             return;
         }
-        const html = rows.map(r => {
-            return `<tr data-id="${r.id}">
+        const html = rows.map(r => `
+            <tr data-id="${r.id}">
                 <td><img src="${escHtml(r.url_imagen)}" class="admin-thumb"></td>
                 <td class="fw-600">${escHtml(r.titulo)}</td>
                 <td class="text-center">${r.orden}</td>
@@ -108,11 +106,10 @@ function cargarTabla() {
                 </td>
                 <td class="text-center">
                     <button class="btn-icon btn-toggle" title="Estado">🔄</button>
-                    <button class="btn-icon btn-edit" title="Editar">✏️</button>
+                    <button class="btn-icon btn-edit"   title="Editar">✏️</button>
                     <button class="btn-icon btn-delete" title="Eliminar">🗑️</button>
                 </td>
-            </tr>`;
-        }).join('');
+            </tr>`).join('');
         $('#tablaImagenes').html(html);
     });
 }
@@ -121,7 +118,8 @@ $(document).on('click', '.btn-toggle', function () {
     const id = $(this).closest('tr').data('id');
     $.getJSON('datos.php', { toggle: 1, id: id }, function (d) {
         notif(d.mensaje, d.exito ? 'success' : 'error');
-        cargarTabla(); cargarImagenes();
+        cargarTabla();
+        cargarImagenes();
     });
 });
 
@@ -129,16 +127,17 @@ $(document).on('click', '.btn-delete', function () {
     const id = $(this).closest('tr').data('id');
     if (!confirm('¿Eliminar imagen #' + id + '?')) return;
     $.ajax({
-        url: 'datos.php?id=' + id,
+        url:  'datos.php?id=' + id,
         type: 'DELETE',
         success: function (d) {
             notif(d.mensaje, d.exito ? 'success' : 'error');
-            cargarTabla(); cargarImagenes();
+            cargarTabla();
+            cargarImagenes();
         }
     });
 });
 
-/* ── Modal y Lógica de Guardado ─────────────────────────────── */
+/* ── Modal ───────────────────────────────────────────────────── */
 let editandoId  = null;
 let archivoFile = null;
 let tabActivo   = 'url';
@@ -151,11 +150,15 @@ $(document).on('click', '.btn-edit', function () {
 });
 
 function abrirModal(datos) {
-    editandoId = datos ? datos.id : null;
+    $('#modalImagen').remove();
+    $(document).off('.modal');
+
+    editandoId  = datos ? datos.id : null;
     archivoFile = null;
-    tabActivo = 'url';
+    tabActivo   = 'url';
 
     const esEdicion = editandoId !== null;
+
     const modalHtml = `
         <div class="admin-modal" id="modalImagen">
             <div class="admin-modal-inner">
@@ -166,7 +169,8 @@ function abrirModal(datos) {
                 <div class="admin-modal-body">
                     <div class="mb-3">
                         <label class="form-label fw-600">Título *</label>
-                        <input type="text" id="mTitulo" class="form-control" value="${datos ? escHtml(datos.titulo) : ''}">
+                        <input type="text" id="mTitulo" class="form-control"
+                               value="${datos ? escHtml(datos.titulo) : ''}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-600">Descripción</label>
@@ -174,8 +178,12 @@ function abrirModal(datos) {
                     </div>
                     <div class="row mb-3">
                         <div class="col-6">
-                            <label class="form-label fw-600">Orden</label>
-                            <input type="number" id="mOrden" class="form-control" value="${datos ? datos.orden : ''}">
+                            <label class="form-label fw-600">Orden
+                                ${!esEdicion ? '<small style="color:#94a3b8;font-weight:400;"> (automático)</small>' : ''}
+                            </label>
+                            <input type="number" id="mOrden" class="form-control"
+                                   value="${datos ? datos.orden : ''}"
+                                   ${!esEdicion ? 'readonly style="background:#f1f5f9;color:#94a3b8;cursor:not-allowed;"' : ''}>
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-600">Estado</label>
@@ -189,99 +197,114 @@ function abrirModal(datos) {
                         <label class="form-label fw-600">Imagen</label>
                         <div class="img-source-tabs mb-2">
                             <button class="img-tab active" id="tabUrl">URL externa</button>
-                            <button class="img-tab" id="tabLocal">Archivo local</button>
+                            <button class="img-tab"        id="tabLocal">Archivo local</button>
                         </div>
                         <div id="panelUrl">
-                            <input type="url" id="mUrl" class="form-control" placeholder="https://..." value="${datos ? escHtml(datos.url_imagen) : ''}">
+                            <input type="url" id="mUrl" class="form-control"
+                                   placeholder="https://..."
+                                   value="${datos ? escHtml(datos.url_imagen) : ''}">
                         </div>
                         <div id="panelLocal" style="display:none;">
-    <!-- Input FUERA del dropZone para evitar bucle de clicks -->
-    <input type="file" id="mArchivo" accept="image/*" 
-           style="position:fixed; top:-9999px; left:-9999px; opacity:0; width:1px; height:1px;">
-    <div class="file-drop-zone" id="dropZone">
-        <p>📁 Arrastra o selecciona un archivo</p>
-        <small style="color:#94a3b8;">JPG, PNG, GIF, WEBP — máx 5 MB</small>
-    </div>
-    <div id="fileChosen" style="display:none;" class="file-chosen">
-        <span id="fileName"></span>
-        <button class="btn-quitar-archivo" id="btnQuitarArchivo">×</button>
-    </div>
-</div>
+                            <input type="file" id="mArchivo" accept="image/*"
+                                   style="position:fixed;top:-9999px;left:-9999px;opacity:0;width:1px;height:1px;">
+                            <div class="file-drop-zone" id="dropZone">
+                                <p>📁 Arrastra o selecciona un archivo</p>
+                                <small style="color:#94a3b8;">JPG, PNG, GIF, WEBP — máx 5 MB</small>
+                            </div>
+                            <div id="fileChosen" style="display:none;" class="file-chosen">
+                                <span id="fileName"></span>
+                                <button class="btn-quitar-archivo" id="btnQuitarArchivo">×</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="admin-modal-footer">
                     <button class="btn btn-outline-secondary btn-sm" id="btnCerrarModal2">Cancelar</button>
-                    <button class="btn-admin-save" id="btnGuardar">${esEdicion ? 'Guardar cambios' : 'Crear imagen'}</button>
+                    <button class="btn-admin-save" id="btnGuardar">
+                        ${esEdicion ? 'Guardar cambios' : 'Crear imagen'}
+                    </button>
                 </div>
             </div>
         </div>`;
 
     $('body').append(modalHtml);
+
+    // En creación: mostrar el orden que se asignará (solo informativo, el servidor lo calcula)
     if (!esEdicion) {
-    $.getJSON('datos.php', { siguiente_orden: 1 }, function (r) {
-        $('#mOrden').val(r.siguiente);
-    });
-}
-    
-    // Eventos del modal
+        $('#mOrden').val('...');
+        $.getJSON('datos.php', { siguiente_orden: 1 }, function (r) {
+            $('#mOrden').val(r.siguiente);
+        });
+    }
+
+    // ── Eventos del modal ────────────────────────────────────────
+
     $(document).on('click.modal', '#tabUrl', function () {
-    tabActivo = 'url';
-    $(this).addClass('active'); $('#tabLocal').removeClass('active');
-    $('#panelUrl').show(); $('#panelLocal').hide();
-});
+        tabActivo = 'url';
+        $(this).addClass('active');
+        $('#tabLocal').removeClass('active');
+        $('#panelUrl').show();
+        $('#panelLocal').hide();
+    });
 
-$(document).on('click.modal', '#tabLocal', function () {
-    tabActivo = 'local';
-    $(this).addClass('active'); $('#tabUrl').removeClass('active');
-    $('#panelLocal').show(); $('#panelUrl').hide();
-});
+    $(document).on('click.modal', '#tabLocal', function () {
+        tabActivo = 'local';
+        $(this).addClass('active');
+        $('#tabUrl').removeClass('active');
+        $('#panelLocal').show();
+        $('#panelUrl').hide();
+    });
 
-$(document).on('click.modal', '#dropZone', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    document.getElementById('mArchivo').click();
-});
+    $(document).on('click.modal', '#dropZone', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById('mArchivo').click();
+    });
 
-$(document).on('change.modal', '#mArchivo', function () {
-    if (this.files && this.files[0]) manejarArchivo(this.files[0]);
-});
+    $(document).on('change.modal', '#mArchivo', function () {
+        if (this.files && this.files[0]) manejarArchivo(this.files[0]);
+    });
 
-$(document).on('dragover.modal dragenter.modal', '#dropZone', function (e) {
-    e.preventDefault(); e.stopPropagation();
-    $(this).addClass('drag-over');
-});
+    $(document).on('dragover.modal dragenter.modal', '#dropZone', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).addClass('drag-over');
+    });
 
-$(document).on('dragleave.modal dragend.modal', '#dropZone', function () {
-    $(this).removeClass('drag-over');
-});
+    $(document).on('dragleave.modal dragend.modal', '#dropZone', function () {
+        $(this).removeClass('drag-over');
+    });
 
-$(document).on('drop.modal', '#dropZone', function (e) {
-    e.preventDefault(); e.stopPropagation();
-    $(this).removeClass('drag-over');
-    const file = e.originalEvent.dataTransfer.files[0];
-    if (file) manejarArchivo(file);
-});
+    $(document).on('drop.modal', '#dropZone', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).removeClass('drag-over');
+        const file = e.originalEvent.dataTransfer.files[0];
+        if (file) manejarArchivo(file);
+    });
 
-$(document).on('click.modal', '#btnQuitarArchivo', function () {
-    archivoFile = null;
-    $('#fileChosen').hide();
-    $('#dropZone').show();
-    $('#mArchivo').val('');
-});
+    $(document).on('click.modal', '#btnQuitarArchivo', function () {
+        archivoFile = null;
+        $('#fileChosen').hide();
+        $('#dropZone').show();
+        $('#mArchivo').val('');
+    });
 
-$(document).on('click.modal', '#btnCerrarModal, #btnCerrarModal2', function () {
-    $('#modalImagen').remove();
-    $(document).off('.modal');
-});
+    $(document).on('click.modal', '#btnCerrarModal, #btnCerrarModal2', function () {
+        $('#modalImagen').remove();
+        $(document).off('.modal');
+    });
 
-$(document).on('click.modal', '#btnGuardar', guardarImagen);
-} // Aquí cierra abrirModal correctamente
+    $(document).on('click.modal', '#btnGuardar', guardarImagen);
 
-// 3. FUNCIONES GLOBALES (Fuera de abrirModal)
+} // ── fin abrirModal ──
+
+/* ── Helpers del modal ───────────────────────────────────────── */
+
 function manejarArchivo(file) {
     archivoFile = file;
     $('#fileName').text(file.name);
-    $('#fileChosen').show(); 
+    $('#fileChosen').show();
     $('#dropZone').hide();
 }
 
@@ -289,7 +312,6 @@ function guardarImagen() {
     const titulo = $('#mTitulo').val().trim();
     if (!titulo) return alert('El título es requerido');
 
-    // Validar que haya imagen
     if (tabActivo === 'local' && !archivoFile) {
         return alert('Selecciona un archivo de imagen');
     }
@@ -298,28 +320,24 @@ function guardarImagen() {
     }
 
     const $btn = $('#btnGuardar').prop('disabled', true).text('Guardando...');
-    const fd = new FormData();
+    const fd   = new FormData();
 
     fd.append('titulo',      titulo);
     fd.append('descripcion', $('#mDesc').val().trim());
-    fd.append('orden',       $('#mOrden').val());
     fd.append('activo',      $('#mActivo').val());
 
-    if (tabActivo === 'local' && archivoFile) {
-        fd.append('archivo', archivoFile, archivoFile.name); // ← nombre explícito
-    } else {
-        fd.append('url_imagen', $('#mUrl').val().trim());
-    }
-
+    // En edición se manda el orden; en creación el servidor lo calcula solo
     if (editandoId) {
+        fd.append('orden', $('#mOrden').val());
         fd.append('id',      editandoId);
         fd.append('_method', 'PUT');
     }
 
-    // Debug: confirmar que el archivo está en el FormData
-    console.log('Archivo en FormData:', fd.get('archivo'));
-    console.log('tabActivo:', tabActivo);
-    console.log('archivoFile:', archivoFile);
+    if (tabActivo === 'local' && archivoFile) {
+        fd.append('archivo', archivoFile, archivoFile.name);
+    } else {
+        fd.append('url_imagen', $('#mUrl').val().trim());
+    }
 
     $.ajax({
         url:         'datos.php',
@@ -328,26 +346,33 @@ function guardarImagen() {
         processData: false,
         contentType: false,
         success: function (d) {
-            console.log('Respuesta servidor:', d);
             $('#modalImagen').remove();
             $(document).off('.modal');
             notif(d.mensaje, d.exito ? 'success' : 'error');
             if (d.exito) { cargarTabla(); cargarImagenes(); }
         },
         error: function (xhr) {
-            console.error('Error:', xhr.responseText);
+            console.error('Error servidor:', xhr.responseText);
             notif('Error de servidor: ' + xhr.status, 'error');
             $btn.prop('disabled', false).text(editandoId ? 'Guardar cambios' : 'Crear imagen');
         }
     });
 }
 
+/* ── Utilidades ──────────────────────────────────────────────── */
+
 function notif(msg, tipo) {
-    const cls = tipo === 'success' ? 'admin-notif admin-notif--success' : 'admin-notif admin-notif--error';
+    const cls = tipo === 'success'
+        ? 'admin-notif admin-notif--success'
+        : 'admin-notif admin-notif--error';
     $('#adminNotif').html(`<div class="${cls}">${escHtml(msg)}</div>`);
     setTimeout(() => $('#adminNotif').empty(), 4000);
 }
 
 function escHtml(str) {
-    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
 }
