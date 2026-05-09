@@ -270,7 +270,6 @@ $(document).on('click.modal', '#btnCerrarModal, #btnCerrarModal2', function () {
 });
 
 $(document).on('click.modal', '#btnGuardar', guardarImagen);
-});
 } // Aquí cierra abrirModal correctamente
 
 // 3. FUNCIONES GLOBALES (Fuera de abrirModal)
