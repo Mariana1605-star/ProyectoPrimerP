@@ -229,10 +229,26 @@ function abrirModal(datos) {
     });
 
     $('#dropZone').on('click', () => $('#mArchivo').click());
-    $('#mArchivo').on('change', function () { if (this.files[0]) manejarArchivo(this.files[0]); });
-    $('#btnQuitarArchivo').on('click', () => { archivoFile=null; $('#fileChosen').hide(); $('#dropZone').show(); });
-    $('#btnCerrarModal, #btnCerrarModal2').on('click', () => $('#modalImagen').remove());
-    $('#btnGuardar').on('click', guardarImagen);
+$('#mArchivo').on('change', function () { if (this.files[0]) manejarArchivo(this.files[0]); });
+
+// ── Drag & Drop ──────────────────────────────────────────────
+$('#dropZone').on('dragover dragenter', function (e) {
+    e.preventDefault();           // Impide que el navegador abra el archivo
+    e.stopPropagation();
+    $(this).addClass('drag-over');
+});
+
+$('#dropZone').on('dragleave dragend', function (e) {
+    $(this).removeClass('drag-over');
+});
+
+$('#dropZone').on('drop', function (e) {
+    e.preventDefault();           // ← Esta es la línea clave
+    e.stopPropagation();
+    $(this).removeClass('drag-over');
+    const file = e.originalEvent.dataTransfer.files[0];
+    if (file) manejarArchivo(file);
+});
 }
 
 function manejarArchivo(file) {
