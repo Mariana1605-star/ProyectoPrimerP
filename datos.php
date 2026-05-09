@@ -35,6 +35,13 @@ if ($method === 'GET') {
         if (!$row) { http_response_code(404); echo json_encode(['exito'=>false,'mensaje'=>'No encontrada']); exit; }
         echo json_encode($row); exit;
     }
+    
+    // Siguiente orden disponible
+if (isset($_GET['siguiente_orden'])) {
+    $stmt = $db->query("SELECT COALESCE(MAX(orden), 0) + 1 AS siguiente FROM imagenes");
+    echo json_encode(['siguiente' => (int)$stmt->fetch()['siguiente']]);
+    exit;
+}
 
     // Todas o solo activas
     $todas = isset($_GET['todas']) && $_GET['todas'] == '1';

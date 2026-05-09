@@ -175,7 +175,7 @@ function abrirModal(datos) {
                     <div class="row mb-3">
                         <div class="col-6">
                             <label class="form-label fw-600">Orden</label>
-                            <input type="number" id="mOrden" class="form-control" value="${datos ? datos.orden : 0}">
+                            <input type="number" id="mOrden" class="form-control" value="${datos ? datos.orden : ''}">
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-600">Estado</label>
@@ -217,7 +217,12 @@ function abrirModal(datos) {
         </div>`;
 
     $('body').append(modalHtml);
-
+    if (!esEdicion) {
+    $.getJSON('datos.php', { siguiente_orden: 1 }, function (r) {
+        $('#mOrden').val(r.siguiente);
+    });
+}
+    
     // Eventos del modal
     $(document).on('click.modal', '#tabUrl', function () {
     tabActivo = 'url';
