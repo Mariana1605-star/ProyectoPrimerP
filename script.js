@@ -288,38 +288,55 @@ function guardarImagen() {
     const titulo = $('#mTitulo').val().trim();
     if (!titulo) return alert('El título es requerido');
 
-    const btn = $('#btnGuardar').prop('disabled', true).text('Guardando...');
+    // Validar que haya imagen
+    if (tabActivo === 'local' && !archivoFile) {
+        return alert('Selecciona un archivo de imagen');
+    }
+    if (tabActivo === 'url' && !$('#mUrl').val().trim()) {
+        return alert('Ingresa una URL de imagen');
+    }
+
+    const $btn = $('#btnGuardar').prop('disabled', true).text('Guardando...');
     const fd = new FormData();
-    fd.append('titulo', titulo);
+
+    fd.append('titulo',      titulo);
     fd.append('descripcion', $('#mDesc').val().trim());
-    fd.append('orden', $('#mOrden').val());
-    fd.append('activo', $('#mActivo').val());
+    fd.append('orden',       $('#mOrden').val());
+    fd.append('activo',      $('#mActivo').val());
 
     if (tabActivo === 'local' && archivoFile) {
-        fd.append('archivo', archivoFile);
+        fd.append('archivo', archivoFile, archivoFile.name); // ← nombre explícito
     } else {
         fd.append('url_imagen', $('#mUrl').val().trim());
     }
 
     if (editandoId) {
-        fd.append('id', editandoId);
-        fd.append('_method', 'PUT'); 
+        fd.append('id',      editandoId);
+        fd.append('_method', 'PUT');
     }
 
+    // Debug: confirmar que el archivo está en el FormData
+    console.log('Archivo en FormData:', fd.get('archivo'));
+    console.log('tabActivo:', tabActivo);
+    console.log('archivoFile:', archivoFile);
+
     $.ajax({
-        url: 'datos.php',
-        type: 'POST',
-        data: fd,
+        url:         'datos.php',
+        type:        'POST',
+        data:        fd,
         processData: false,
         contentType: false,
         success: function (d) {
+            console.log('Respuesta servidor:', d);
             $('#modalImagen').remove();
+            $(document).off('.modal');
             notif(d.mensaje, d.exito ? 'success' : 'error');
             if (d.exito) { cargarTabla(); cargarImagenes(); }
         },
-        error: function () {
-            notif('Error de servidor', 'error');
-            btn.prop('disabled', false).text('Guardar');
+        error: function (xhr) {
+            console.error('Error:', xhr.responseText);
+            notif('Error de servidor: ' + xhr.status, 'error');
+            $btn.prop('disabled', false).text(editandoId ? 'Guardar cambios' : 'Crear imagen');
         }
     });
 }
