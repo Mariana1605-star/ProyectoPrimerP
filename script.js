@@ -229,15 +229,19 @@ function abrirModal(datos) {
     });
 
     // CORRECCIÓN: Eventos de selección de archivo
-    $('#dropZone').on('click', function() {
-        $('#mArchivo').click();
-    });
+    $('#dropZone').on('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    // Forzamos el click en el input oculto
+    document.getElementById('mArchivo').click();
+});
 
-    $('#mArchivo').on('change', function () { 
-        if (this.files && this.files[0]) {
-            manejarArchivo(this.files[0]); 
-        }
-    });
+// Asegurarnos que el cambio se detecte
+$(document).on('change', '#mArchivo', function() {
+    if (this.files && this.files[0]) {
+        manejarArchivo(this.files[0]);
+    }
+});
 
     $('#btnQuitarArchivo').on('click', function() { 
         archivoFile = null; 
