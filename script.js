@@ -195,15 +195,18 @@ function abrirModal(datos) {
                             <input type="url" id="mUrl" class="form-control" placeholder="https://..." value="${datos ? escHtml(datos.url_imagen) : ''}">
                         </div>
                         <div id="panelLocal" style="display:none;">
-                            <div class="file-drop-zone" id="dropZone">
-                                <p>Arrastra o selecciona un archivo</p>
-                                <input type="file" id="mArchivo" accept="image/*" style="display:none;">
-                            </div>
-                            <div id="fileChosen" style="display:none;" class="file-chosen">
-                                <span id="fileName"></span>
-                                <button class="btn-quitar-archivo" id="btnQuitarArchivo">×</button>
-                            </div>
-                        </div>
+    <!-- Input FUERA del dropZone para evitar bucle de clicks -->
+    <input type="file" id="mArchivo" accept="image/*" 
+           style="position:fixed; top:-9999px; left:-9999px; opacity:0; width:1px; height:1px;">
+    <div class="file-drop-zone" id="dropZone">
+        <p>📁 Arrastra o selecciona un archivo</p>
+        <small style="color:#94a3b8;">JPG, PNG, GIF, WEBP — máx 5 MB</small>
+    </div>
+    <div id="fileChosen" style="display:none;" class="file-chosen">
+        <span id="fileName"></span>
+        <button class="btn-quitar-archivo" id="btnQuitarArchivo">×</button>
+    </div>
+</div>
                     </div>
                 </div>
                 <div class="admin-modal-footer">
@@ -229,15 +232,35 @@ function abrirModal(datos) {
     });
 
     // CORRECCIÓN: Eventos de selección de archivo
-    $(document).on('click', '#dropZone', function() {
-    $('#mArchivo').trigger('click');
+    // ── Abrir explorador al hacer click ──────────────────────────
+$(document).on('click.modal', '#dropZone', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    document.getElementById('mArchivo').click();
 });
 
-// Asegurarnos que el cambio se detecte
-$(document).on('change', '#mArchivo', function() {
-    if (this.files && this.files[0]) {
-        manejarArchivo(this.files[0]);
-    }
+// ── Detectar archivo seleccionado ────────────────────────────
+$(document).on('change.modal', '#mArchivo', function () {
+    if (this.files && this.files[0]) manejarArchivo(this.files[0]);
+});
+
+// ── Drag & Drop ──────────────────────────────────────────────
+$(document).on('dragover.modal dragenter.modal', '#dropZone', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(this).addClass('drag-over');
+});
+
+$(document).on('dragleave.modal dragend.modal', '#dropZone', function () {
+    $(this).removeClass('drag-over');
+});
+
+$(document).on('drop.modal', '#dropZone', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    $(this).removeClass('drag-over');
+    const file = e.originalEvent.dataTransfer.files[0];
+    if (file) manejarArchivo(file);
 });
 
     $('#btnQuitarArchivo').on('click', function() { 
@@ -247,8 +270,10 @@ $(document).on('change', '#mArchivo', function() {
         $('#mArchivo').val(''); // Limpiar el input
     });
 
-    $('#btnCerrarModal, #btnCerrarModal2').on('click', () => $('#modalImagen').remove());
-    $('#btnGuardar').on('click', guardarImagen);
+    $(document).on('click', '#btnCerrarModal, #btnCerrarModal2', function () {
+    $('#modalImagen').remove();
+    $(document).off('.modal'); // Limpia todos los eventos del modal
+});
 } // Aquí cierra abrirModal correctamente
 
 // 3. FUNCIONES GLOBALES (Fuera de abrirModal)
